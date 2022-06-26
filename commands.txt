@@ -1,0 +1,43 @@
+SETUP:
+----------------------------------------------------------------------------------------
+
+cf cs jobscheduler standard schedulermulti_job -c "{\"enable-xsuaa-support\": true}"
+cf create-service xsuaa application schedulermulti_uaa -c xs-security.json
+cf create-service-key schedulermulti_uaa schedulermulti_uaa_key
+cf service-key schedulermulti_uaa schedulermulti_uaa_key
+mbt build
+cf deploy mta_archives/schedulermulti_0.0.1.mtar
+
+
+
+
+CLEANUP AND SETUP:
+----------------------------------------------------------------------------------------
+
+cf d schedulermulti -r -f
+cf d schedulermulti-srv -r -f
+cf ds schedulermulti_registry -f
+cf ds schedulermulti_job -f
+cf ds schedulermulti_sm -f
+cf dsk schedulermulti_uaa schedulermulti_uaa_key -f
+cf ds schedulermulti_uaa -f
+cf cs jobscheduler standard schedulermulti_job -c "{\"enable-xsuaa-support\": true}"
+cf create-service xsuaa application schedulermulti_uaa -c xs-security.json
+cf create-service-key schedulermulti_uaa schedulermulti_uaa_key
+cf service-key schedulermulti_uaa schedulermulti_uaa_key
+mbt build
+cf deploy mta_archives/schedulermulti_0.0.1.mtar
+
+
+
+
+CLEANUP:
+----------------------------------------------------------------------------------------
+
+cf d schedulermulti -r -f
+cf d schedulermulti-srv -r -f
+cf ds schedulermulti_registry -f
+cf ds schedulermulti_job -f
+cf ds schedulermulti_sm -f
+cf dsk schedulermulti_uaa schedulermulti_uaa_key -f
+cf ds schedulermulti_uaa -f

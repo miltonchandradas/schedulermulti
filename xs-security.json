@@ -1,0 +1,148 @@
+{
+    "xsappname": "team3601-schedulermulti",
+    "tenant-mode": "shared",
+    "scopes": [
+        {
+            "name": "$XSAPPNAME.mtcallback",
+            "description": "SaaS Provisioning",
+            "grant-as-authority-to-apps": [
+                "$XSAPPNAME(application,sap-provisioning,tenant-onboarding)"
+            ]
+        },
+        {
+            "name": "$XSAPPNAME.mtdeployment",
+            "description": "SaaS Model Upgrade"
+        },
+        {
+            "name": "$XSAPPNAME.MtxDiagnose",
+            "description": "SaaS Diagnose"
+        },
+        {
+            "name": "uaa.user",
+            "description": "UAA",
+            "grant-as-authority-to-apps": [
+                "$XSSERVICENAME(schedulermulti_job)"
+            ]
+        },
+        {
+            "name": "$XSAPPNAME.Viewer",
+            "description": "Viewer",
+            "grant-as-authority-to-apps": [
+                "$XSSERVICENAME(schedulermulti_job)"
+            ]
+        },
+        {
+            "name": "$XSAPPNAME.Admin",
+            "description": "Administrator",
+            "grant-as-authority-to-apps": [
+                "$XSSERVICENAME(schedulermulti_job)"
+            ]
+        },
+        {
+            "name": "$XSAPPNAME.ExtendCDS",
+            "description": "Create Extensions"
+        },
+        {
+            "name": "$XSAPPNAME.ExtendCDSdelete",
+            "description": "Delete Extensions"
+        }
+    ],
+    "role-templates": [
+        {
+            "name": "Token_Exchange",
+            "description": "UAA Token Exchange",
+            "scope-references": [
+                "uaa.user"
+            ]
+        },
+        {
+            "name": "Viewer",
+            "description": "Viewer",
+            "scope-references": [
+                "$XSAPPNAME.Viewer"
+            ]
+        },
+        {
+            "name": "Admin",
+            "description": "Administrator",
+            "scope-references": [
+                "$XSAPPNAME.Admin"
+            ]
+        },
+        {
+            "name": "SaaSAdmin",
+            "description": "SaaS Administrator",
+            "scope-references": [
+                "$XSAPPNAME.mtcallback",
+                "$XSAPPNAME.mtdeployment",
+                "$XSAPPNAME.MtxDiagnose"
+            ]
+        },
+        {
+            "name": "ExtendCDS",
+            "description": "Extension Developer",
+            "scope-references": [
+                "$XSAPPNAME.ExtendCDS"
+            ]
+        },
+        {
+            "name": "ExtendCDSdelete",
+            "description": "Extension Developer - Delete",
+            "scope-references": [
+                "$XSAPPNAME.ExtendCDSdelete"
+            ]
+        }
+    ],
+    "role-collections": [
+        {
+            "name": "schedulermulti_Viewer",
+            "description": "Viewing access",
+            "role-template-references": [
+                "$XSAPPNAME.Viewer"
+            ]
+        },
+        {
+            "name": "schedulermulti_Administrator",
+            "description": "Administrative access",
+            "role-template-references": [
+                "$XSAPPNAME.Admin"
+            ]
+        },
+        {
+            "name": "schedulermulti_SaaS_Administrator",
+            "description": "SaaS Administrative access",
+            "role-template-references": [
+                "$XSAPPNAME.SaaSAdmin"
+            ]
+        },
+        {
+            "name": "schedulermulti_Extension_Developer",
+            "description": "Extension Development access",
+            "role-template-references": [
+                "$XSAPPNAME.ExtendCDS"
+            ]
+        },
+        {
+            "name": "schedulermulti_Extension_Developer_Delete",
+            "description": "Extension Development Delete access",
+            "role-template-references": [
+                "$XSAPPNAME.ExtendCDSdelete"
+            ]
+        }
+    ],
+    "authorities": [
+        "$XSAPPNAME.mtcallback",
+        "$XSAPPNAME.mtdeployment",
+        "$XSAPPNAME.MtxDiagnose"
+    ],
+    "oauth2-configuration": {
+        "token-validity": 3600,
+        "redirect-uris": [
+            "http://localhost:5000/**",
+            "http://localhost:4004/**",
+            "https://*.*.applicationstudio.cloud.sap/**",
+            "https://*.cfapps.*.hana.ondemand.com/**",
+            "https://*.authentication.*.hana.ondemand.com/**"
+        ]
+    }
+}

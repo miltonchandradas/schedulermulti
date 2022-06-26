@@ -1,0 +1,179 @@
+{
+  "name": "schedulermulti",
+  "version": "0.0.1",
+  "repository": "<Add your repository here>",
+  "license": "UNLICENSED",
+  "description": "Business Application",
+  "engines": {
+    "node": "14.x"
+  },
+  "dependencies": {
+    "@sap-cloud-sdk/core": "^1.54.2",
+    "@sap/approuter": "^11.2.1",
+    "@sap/audit-logging": "^5",
+    "@sap/cds": "^5",
+    "@sap/cds-mtx": "^2",
+    "@sap/jobs-client": "^1.7.30",
+    "@sap/xsenv": "^3",
+    "@sap/xssec": "^3",
+    "cfenv": "^1",
+    "debug": "^4.3",
+    "express": "^4",
+    "hdb": "^0.19",
+    "jwt-decode": "^3.1.2",
+    "passport": "^0.4.1"
+  },
+  "devDependencies": {
+    "sqlite3": "^5.0.2",
+    "@sap/ux-specification": "^1.96.4"
+  },
+  "sapux": [
+    "app/resources/fiori"
+  ],
+  "scripts": {
+    "start": "cds run"
+  },
+  "eslintConfig": {
+    "extends": "eslint:recommended",
+    "env": {
+      "es2020": true,
+      "node": true,
+      "jest": true,
+      "mocha": true
+    },
+    "globals": {
+      "SELECT": true,
+      "INSERT": true,
+      "UPDATE": true,
+      "DELETE": true,
+      "CREATE": true,
+      "DROP": true,
+      "CDL": true,
+      "CQL": true,
+      "CXL": true,
+      "cds": true
+    },
+    "rules": {
+      "no-console": "off",
+      "require-atomic-updates": "off"
+    }
+  },
+  "cds": {
+    "build": {
+      "target": "gen",
+      "tasks": [
+        {
+          "for": "hana",
+          "src": "db",
+          "options": {
+            "model": [
+              "db",
+              "app",
+              "srv"
+            ]
+          }
+        },
+        {
+          "for": "node-cf",
+          "src": "srv",
+          "options": {
+            "model": [
+              "db",
+              "app",
+              "srv"
+            ]
+          }
+        },
+        {
+          "for": "mtx",
+          "src": ".",
+          "dest": "srv",
+          "options": {
+            "model": [
+              "db",
+              "app",
+              "srv",
+              "."
+            ]
+          }
+        }
+      ]
+    },
+    "requires": {
+      "uaa": {
+        "kind": "xsuaa"
+      },
+      "auth": {
+        "[production]": {
+          "strategy": "JWT"
+        },
+        "[development]": {
+          "strategy": "mock",
+          "users": {
+            "joe": {
+              "roles": [
+                "Admin",
+                "Viewer"
+              ]
+            },
+            "julie": {
+              "roles": [
+                "Viewer"
+              ]
+            },
+            "bob": {
+              "roles": [
+                "Viewer"
+              ]
+            }
+          }
+        }
+      },
+      "db": {
+        "[production]": {
+          "kind": "hana-cloud"
+        },
+        "[development]": {
+          "kind": "sql"
+        },
+        "model": [
+          "db",
+          "srv"
+        ],
+        "vcap": {
+          "label": "service-manager"
+        }
+      },
+      "multitenancy": true
+    },
+    "mtx": {
+      "api": {
+        "provisioning": true,
+        "metadata": true,
+        "model": true
+      },
+      "element-prefix": [
+        "Z_",
+        "ZZ_"
+      ],
+      "namespace-blocklist": [
+        "com.sap.",
+        "sap.",
+        "schedulermulti."
+      ],
+      "extension-allowlist": [
+        {
+          "for": [
+            "schedulermulti.db.Sales"
+          ]
+        },
+        {
+          "for": [
+            "CatalogService"
+          ],
+          "kind": "service"
+        }
+      ]
+    }
+  }
+}

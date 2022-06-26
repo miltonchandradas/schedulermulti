@@ -1,0 +1,154 @@
+_schema-version: '3.2'
+ID: schedulermulti
+version: 0.0.1
+
+parameters:
+  enable-parallel-deployments: true
+
+build-parameters:
+  before-all:
+    - builder: custom
+      commands:
+        - npm install --production
+        - npx -p @sap/cds-dk cds build --production
+#        - npx rimraf gen/db/src/gen/data # uncomment this line to prevent loading of initial data which is only relevant for dev/test deployments 
+#        - npx rimraf gen/db/src/gen/csv  # uncomment this line unless db/csv folder has been used for config/control table data which is entirely managed by the developer and never changed by the app
+
+modules:
+
+  # --------------------- SERVER MODULE ------------------------
+  - name: schedulermulti-srv
+  # ------------------------------------------------------------
+    type: nodejs
+    path: gen/srv
+    build-parameters:
+      ignore:
+        - default-*.json
+        - .env
+        - "*node_modules*"
+    parameters:
+      buildpack: nodejs_buildpack
+      memory: 512M
+      disk-quota: 1024M
+    properties:
+      LOG_LEVEL: debug
+      EXIT: 1
+      team3601c1: 6bd68b95-18b3-4c05-baf3-8b23cf1c13d3
+      team3601c2: eaaf7c3a-a6aa-4ea3-8ec8-fbadb26a5822
+      SAP_JWT_TRUST_ACL: [{ 'clientid': '*', 'identityzone': '*' }]
+      NODE_DEBUG: instance-manager
+    requires:
+      - name: schedulermulti_uaa
+      - name: schedulermulti_registry
+      - name: schedulermulti_sm
+      - name: schedulermulti_job
+    provides:
+      - name: srv-api
+        properties:
+          srv-url: ${default-url}
+
+
+
+
+  # ------------------ APP ROUTER MODULE -----------------------
+  - name: schedulermulti
+  # ------------------------------------------------------------
+    type: approuter.nodejs
+    path: app
+    build-parameters:
+      ignore:
+        - default-*.json
+        - .env
+        - "*node_modules*"
+    parameters:
+      memory: 256M
+      disk-quota: 1024M
+      keep-existing-routes: true
+    properties:
+      TENANT_HOST_PATTERN: '^(.*)-${space}-${app-name}.${default-domain}'
+    requires:
+      - name: schedulermulti_uaa
+      - name: srv-api
+        group: destinations
+        properties:
+          name: srv
+          url: ~{srv-url}
+          timeout: 60000
+          forwardAuthToken: true
+    provides:
+      - name: app_api
+        properties:
+          url: ${default-url}
+          application: ${app-name}
+
+
+resources:
+  # ----------------------- UAA SERVICE ------------------------
+  - name: schedulermulti_uaa
+  # ------------------------------------------------------------
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: xsuaa
+      service-plan: application
+      path: ./xs-security.json
+      xsuaa-app: ${space}-~{app_api/application}
+      config:
+        xsappname: ${xsuaa-app}
+    properties:
+      XSAPPNAME: ${xsuaa-app}
+    requires: 
+      - name: app_api
+
+
+
+
+
+
+
+  # --------------------- REGISTRY SERVICE ---------------------
+  - name: schedulermulti_registry
+  # ------------------------------------------------------------
+    type: org.cloudfoundry.managed-service
+    requires:
+      - name: schedulermulti_uaa
+    parameters:
+      service: saas-registry
+      service-plan: application
+      config:
+        appId: ~{schedulermulti_uaa/XSAPPNAME}!t131596
+        appName: schedulermulti
+        displayName: 'Scheduler Multi'
+        description: 'Business Application'
+        category: 'Multitenant with Job Scheduler'
+        appUrls:
+          onSubscription: https://${org}-${space}-schedulermulti-srv.${default-domain}/mtx/v1/provisioning/tenant/{tenantId}
+          getDependencies: https://${org}-${space}-schedulermulti-srv.${default-domain}/mtx/v1/provisioning/dependencies
+
+
+
+  # ------------------- SERVICE MANAGER SERVICE ----------------
+  - name: schedulermulti_sm
+  # ------------------------------------------------------------
+    type: org.cloudfoundry.managed-service
+    requires:
+     - name: schedulermulti_uaa
+    parameters:
+       service: service-manager
+       service-plan: container
+       polling_timeout_seconds: 240
+       config:
+         acquireTimeoutMillis: max
+         polling_timeout_seconds: 480
+
+
+  # ------------------- JOB SCHEDULER -------------------------
+  - name: schedulermulti_job
+  # ------------------------------------------------------------
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: jobscheduler
+      service-plan: standard
+      config:
+         enable-xsuaa-support: true
+
+
