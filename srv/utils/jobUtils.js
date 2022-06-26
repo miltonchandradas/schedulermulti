@@ -4,7 +4,7 @@ const JOB_CREDENTIALS = VCAP_SERVICES.jobscheduler[0].credentials;
 const JOB_URL = JOB_CREDENTIALS.url;
 const JOB_UAA = JOB_CREDENTIALS.uaa;
 const SPACE = "team3601";
-const APP = "planandseat";
+const APP = "schedulermulti";
 const PATH = "cfapps.eu10-004.hana.ondemand.com";
 const ENDPOINT = "catalog/Sales";
 
