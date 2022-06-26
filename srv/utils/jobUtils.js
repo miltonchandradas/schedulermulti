@@ -61,7 +61,8 @@ module.exports = async (jwtToken, subdomain) => {
   const myJob = {
     name: `updatereservation_${new Date().getMilliseconds()}`,
     description: "Cron job that updates reservations",
-    action: `https://${subdomain}-${SPACE}-${APP}.${PATH}/${ENDPOINT}`,
+    // action: `https://${subdomain}-${SPACE}-${APP}.${PATH}/${ENDPOINT}`,
+    action: `https://cf-ic2022-team3601-schedulermulti-srv.cfapps.eu10-004.hana.ondemand.com/catalog/Sales`,
     active: true,
     httpMethod: "GET",
     schedules: [

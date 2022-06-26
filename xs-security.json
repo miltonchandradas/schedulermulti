@@ -133,7 +133,9 @@
     "authorities": [
         "$XSAPPNAME.mtcallback",
         "$XSAPPNAME.mtdeployment",
-        "$XSAPPNAME.MtxDiagnose"
+        "$XSAPPNAME.MtxDiagnose",
+        "$XSAPPNAME.Viewer",
+        "$XSAPPNAME.Admin"
     ],
     "oauth2-configuration": {
         "token-validity": 3600,

@@ -35,8 +35,10 @@ modules:
       EXIT: 1
       team3601c1: 6bd68b95-18b3-4c05-baf3-8b23cf1c13d3
       team3601c2: eaaf7c3a-a6aa-4ea3-8ec8-fbadb26a5822
-      SAP_JWT_TRUST_ACL: [{ 'clientid': '*', 'identityzone': '*' }]
       NODE_DEBUG: instance-manager
+      trusted-foreign-xsuaa-instances:
+         - appId: schedulermulti_job
+           clientId: sb-b3d4f010-3ec0-4c95-a6d5-307f5f17a4a1!b131596|sap-jobscheduler!b3
     requires:
       - name: schedulermulti_uaa
       - name: schedulermulti_registry
